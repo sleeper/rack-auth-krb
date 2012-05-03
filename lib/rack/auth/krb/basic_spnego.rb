@@ -18,6 +18,11 @@ module Rack
         end
 
         def call(env)
+          # DEV mode
+          host = 'ncepspa240'
+          service = 'host/ncepspa240@NCE.AMADEUS.NET'
+          keytab = '/etc/krb5.keytab'
+
           auth = Request.new(env)
 
           puts "FRED: #{env.inspect}"
@@ -28,11 +33,14 @@ module Rack
           end
 
           valid_auth = false
+          srv = GSSAPI::Simple.new(host, service, keytab)
+          srv.acquire_credentials
 
           if auth.negociate?
             token = auth.params
             puts "FRED: Negociate auth token=#{token}"
             # TODO: Play with Kerberos to authenticate user using token
+            otok = srv.accept_context(Base64.strict_decode64(token.chomp))
             valid_auth = true
           elsif auth.basic?
             user, password = auth.credentials
@@ -55,7 +63,7 @@ module Rack
         private
 
         def challenge(hash={})
-          "Negociate"
+          "Negotiate"
         end
 
         def valid?(auth)

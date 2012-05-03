@@ -10,6 +10,8 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
+  gem.add_dependency "gssapi"
+
   gem.add_development_dependency "rspec", "~> 2.0"
   gem.add_development_dependency "goliath"
 
