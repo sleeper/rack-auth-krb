@@ -1,6 +1,7 @@
 require 'rack/auth/abstract/handler'
 require 'rack/auth/krb/request'
 require 'gssapi'
+require 'base64'
 #require 'rack/auth/digest/request'
 #require 'rack/auth/digest/params'
 #require 'rack/auth/digest/nonce'
