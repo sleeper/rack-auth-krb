@@ -9,7 +9,7 @@ module Rack
         end
 
         def negociate?
-          :negociate == scheme
+          :negotiate == scheme
         end
 
         def credentials
