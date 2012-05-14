@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     rack-auth-krb (0.0.1)
+      gssapi
 
 GEM
   remote: http://rubygems.org/
@@ -12,6 +13,7 @@ GEM
     em-synchrony (1.0.1)
       eventmachine (>= 1.0.0.beta.1)
     eventmachine (1.0.0.beta.4)
+    ffi (1.0.11)
     goliath (0.9.4)
       async-rack
       em-synchrony (>= 1.0.0)
@@ -23,6 +25,8 @@ GEM
       rack (>= 1.2.2)
       rack-contrib
       rack-respond_to
+    gssapi (1.1.1)
+      ffi (>= 1.0.1)
     http_parser.rb (0.5.3)
     http_router (0.9.7)
       rack (>= 1.0.0)
