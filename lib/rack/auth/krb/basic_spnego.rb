@@ -30,6 +30,8 @@ module Rack
 
           valid_auth = false
 
+          setup_gssapi( service )
+
           if !gssapi.acquire_credentials
             return error
           end
