@@ -2,9 +2,6 @@ require 'rack/auth/abstract/handler'
 require 'rack/auth/krb/request'
 require 'gssapi'
 require 'base64'
-#require 'rack/auth/digest/request'
-#require 'rack/auth/digest/params'
-#require 'rack/auth/digest/nonce'
 
 module Rack
   module Auth
@@ -21,14 +18,11 @@ module Rack
 
         def call(env)
           # DEV mode
-          host = 'ncepspa240'
-          service = 'host/ncepspa240@NCE.AMADEUS.NET'
+          service = 'http@ncepspa240' # FRED
+          host = 'NCE.AMADEUS.NET'
           keytab = '/etc/krb5.keytab'
 
           auth = Request.new(env)
-
-          puts "FRED: #{env.inspect}"
-          puts "FRED: #{auth.provided?}"
 
           unless auth.provided?
             return unauthorized
@@ -41,9 +35,15 @@ module Rack
           if auth.negociate?
             token = auth.params
             puts "FRED: Negociate auth token=#{token}"
-            # TODO: Play with Kerberos to authenticate user using token
-            otok = srv.accept_context(Base64.strict_decode64(token.chomp))
-            valid_auth = true
+            otok = nil
+            begin
+              otok = srv.accept_context(Base64.strict_decode64(token.chomp))
+              valid_auth = true
+            rescue GSSAPI::GssApiError => e
+              puts "FRED[ERROR]: #{e.message}"
+              valid_auth = false
+            end
+
           elsif auth.basic?
             user, password = auth.credentials
             puts "FRED: Basic auth user=#{user} pass=#{password}"

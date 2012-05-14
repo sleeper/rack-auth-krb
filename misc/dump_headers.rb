@@ -14,6 +14,6 @@ class DumpHeaders < Goliath::API
   end
 
   def response(env)
-    [200, {}, "Hello World"]
+    [200, {}, "Hello #{env['REMOTE_USER']}"]
   end
 end
