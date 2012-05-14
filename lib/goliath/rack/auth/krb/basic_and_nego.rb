@@ -17,7 +17,7 @@ module Goliath
             service = 'http@ncepspa240'
             req = ::Rack::Auth::Krb::Request.new(env)
 
-            a = Krb::Authenticator.new( req, service, realm, keytab )
+            a = ::Krb::Authenticator.new( req, service, realm, keytab )
 
             if !a.authenticate
               return a.response
