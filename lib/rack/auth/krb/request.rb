@@ -8,7 +8,7 @@ module Rack
           :basic == scheme
         end
 
-        def negociate?
+        def negotiate?
           :negotiate == scheme
         end
 

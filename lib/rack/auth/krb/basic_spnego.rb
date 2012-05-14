@@ -32,9 +32,9 @@ module Rack
           srv = GSSAPI::Simple.new(host, service, keytab)
           srv.acquire_credentials
 
-          if auth.negociate?
+          if auth.negotiate?
             token = auth.params
-            puts "FRED: Negociate auth token=#{token}"
+            puts "FRED: Negotiate auth token=#{token}"
             otok = nil
             begin
               otok = srv.accept_context(Base64.strict_decode64(token.chomp))
