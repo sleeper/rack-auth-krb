@@ -1,4 +1,4 @@
-require 'rack/request'
+require 'rack/auth/krb/request'
 module Goliath
   module Rack
     module Auth

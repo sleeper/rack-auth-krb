@@ -2,7 +2,7 @@
 
 require 'bundler/setup'
 require 'goliath'
-require 'goliath/krb_basic_and_nego'
+require 'goliath/rack/auth/krb/basic_and_nego'
 
 class DumpHeaders < Goliath::API
   # default to JSON output, allow Yaml as secondary
