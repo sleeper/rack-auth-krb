@@ -2,12 +2,13 @@
 
 require 'bundler/setup'
 require 'goliath'
-require 'rack/auth/krb'
+require 'goliath/krb_basic_and_nego'
 
 class DumpHeaders < Goliath::API
   # default to JSON output, allow Yaml as secondary
   use Goliath::Rack::Render, ['json', 'yaml']
-  use Rack::Auth::Krb::BasicSPNEGO, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
+#  use Rack::Auth::Krb::BasicSPNEGO, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
+  use Goliath::Rack::Auth::Krb::BasicAndNego, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
 
   def on_headers(env, headers)
     env.logger.info 'received headers: ' + headers.inspect
