@@ -28,7 +28,7 @@ module Rack
             return unauthorized
           end
 
-          valid_auth = false
+#          valid_auth = false
 
           setup_gssapi( service )
 
@@ -50,13 +50,13 @@ module Rack
             return bad_request
           end
 
-          if valid_auth
+#          if valid_auth
             #           env['REMOTE_USER'] = auth.username
 
             return @app.call(env)
-          end
+#          end
 
-          unauthorized
+#          unauthorized
         end
 
         private
