@@ -106,7 +106,8 @@ module Rack
               return false
             end
 
-            @env['WWW-Authenticate'] = "Negotiate #{otok}"
+            tok_b64 = Base64.strict_encode64(otok)
+            @env['WWW-Authenticate'] = "Negotiate #{tok_b64}"
             return true
         end
       end
