@@ -8,11 +8,13 @@ module Rack
     module Krb
       class BasicSPNEGO < AbstractHandler
         attr_reader :gssapi
+        attr_accessor :additional_headers
 
         def initialize(app, realm, keytab)
           @app = app
           @realm = realm
           @keytab = keytab
+          @additional_headers = {}
         end
 
         def call(env)
@@ -50,13 +52,12 @@ module Rack
             return bad_request
           end
 
-#          if valid_auth
             #           env['REMOTE_USER'] = auth.username
 
-            return @app.call(env)
-#          end
+            status, headers, response = @app.call(env)
+            headers.merge!(additional_headers)
+            [status, headers, response]
 
-#          unauthorized
         end
 
         private
@@ -107,7 +108,7 @@ module Rack
             end
 
             tok_b64 = Base64.strict_encode64(otok)
-            @env['WWW-Authenticate'] = "Negotiate #{tok_b64}"
+            additional_headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
             return true
         end
       end
