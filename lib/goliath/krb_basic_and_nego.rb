@@ -1,3 +1,4 @@
+require 'rack/request'
 module Goliath
   module Rack
     module Auth
@@ -12,7 +13,7 @@ module Goliath
 
           def call(env)
             service = 'http@ncepspa240'
-            req = Request.new(env)
+            req = Rack::Auth::Krb::Request.new(env)
 
             a = KrbAuthenticator.new( req, service, realm, keytab )
 
