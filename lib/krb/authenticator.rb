@@ -25,8 +25,8 @@ module Krb
         return false
       end
 
-      if req.negotiate?
-        if !negotiate(req)
+      if request.negotiate?
+        if !negotiate(request)
           response = unauthorized
           return false
         end
