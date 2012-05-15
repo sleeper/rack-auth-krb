@@ -1,11 +1,13 @@
 require 'rack/auth/krb/request'
 require 'krb/authenticator'
 require 'socket'
+require 'rack/logger'
 
 module Rack
   module Auth
     module Krb
       class BasicAndNego
+        use Rack::Logger
         attr_reader :realm, :keytab, :hostname, :service
 
         def initialize(app, realm, keytab, service=nil)
@@ -19,7 +21,7 @@ module Rack
         def call(env)
             req = ::Rack::Auth::Krb::Request.new(env)
 
-            a = ::Krb::Authenticator.new( req, service, realm, keytab, env.logger )
+            a = ::Krb::Authenticator.new( req, service, realm, keytab, env['rack.logger'] )
 
             if !a.authenticate
               return a.response
