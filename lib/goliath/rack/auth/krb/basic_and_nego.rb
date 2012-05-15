@@ -11,16 +11,15 @@ module Goliath
 
           attr_reader :realm, :keytab, :hostname, :service
 
-          def initialize(app, realm, keytab)
+          def initialize(app, realm, keytab, service=nil)
             @app = app
             @realm = realm
             @keytab = keytab
             @hostname = Socket::gethostname
-            @service = "http@#{hostname}"
+            @service = service || "http@#{hostname}"
           end
 
           def call(env)
-            #service = 'http@ncepspa240'
             req = ::Rack::Auth::Krb::Request.new(env)
 
             a = ::Krb::Authenticator.new( req, service, realm, keytab )
