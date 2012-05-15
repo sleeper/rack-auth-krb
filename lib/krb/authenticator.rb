@@ -3,7 +3,7 @@ require 'gssapi'
 module Krb
   class Authenticator
     attr_reader :env, :service, :realm, :keytab, :gssapi
-    attr_reader :response, :headers
+    attr_reader :request, :response, :headers
 
     def initialize(request, service, realm, keytab)
       @request = request
@@ -13,7 +13,7 @@ module Krb
     end
 
     def authenticate
-      unless auth.provided?
+      unless request.provided?
         @response = unauthorized
         return false
       end
@@ -30,8 +30,8 @@ module Krb
           response = unauthorized
           return false
         end
-      elsif auth.basic?
-        user, password = auth.credentials
+      elsif request.basic?
+        user, password = request.credentials
         puts "FRED: Basic auth user=#{user} pass=#{password}"
         # TODO: Play with Kerberos to authenticate user
       else
