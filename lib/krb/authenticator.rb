@@ -4,6 +4,7 @@ require 'base64'
 module Krb
   class Authenticator
     attr_reader :env, :service, :realm, :keytab, :gssapi
+    attr_reader :client_name
     attr_reader :request, :response, :headers
 
     def initialize(request, service, realm, keytab)
@@ -12,6 +13,7 @@ module Krb
       @realm = realm
       @keytab = keytab
       @headers = {}
+      @client_name = nil
     end
 
     def authenticate
@@ -32,6 +34,7 @@ module Krb
           response = unauthorized
           return false
         end
+        @client_name = gssapi.display_name
       elsif request.basic?
         user, password = request.credentials
         puts "FRED: Basic auth user=#{user} pass=#{password}"

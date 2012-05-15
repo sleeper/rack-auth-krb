@@ -26,6 +26,8 @@ module Goliath
               return a.response
             end
 
+            env['REMOTE_USER'] = a.client_name
+
             super(env, a)
           end
 
