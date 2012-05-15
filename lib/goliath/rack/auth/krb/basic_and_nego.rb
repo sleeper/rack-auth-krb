@@ -6,11 +6,14 @@ module Goliath
     module Auth
       module Krb
         class BasicAndNego
+          include Goliath::Rack::AsyncMiddleware
+
+          attr_reader :realm, :keytab
+
           def initialize(app, realm, keytab)
             @app = app
             @realm = realm
             @keytab = keytab
-            @additional_headers = {}
           end
 
           def call(env)
