@@ -1,5 +1,6 @@
 require 'rack/auth/krb/request'
 require 'krb/authenticator'
+require 'socket'
 
 module Goliath
   module Rack
@@ -8,16 +9,18 @@ module Goliath
         class BasicAndNego
           include Goliath::Rack::AsyncMiddleware
 
-          attr_reader :realm, :keytab
+          attr_reader :realm, :keytab, :hostname, :service
 
           def initialize(app, realm, keytab)
             @app = app
             @realm = realm
             @keytab = keytab
+            @hostname = Socket::gethostname
+            @service = "http@#{hostname}"
           end
 
           def call(env)
-            service = 'http@ncepspa240'
+            #service = 'http@ncepspa240'
             req = ::Rack::Auth::Krb::Request.new(env)
 
             a = ::Krb::Authenticator.new( req, service, realm, keytab )
