@@ -4,20 +4,22 @@ require 'base64'
 module Krb
   class Authenticator
     attr_reader :env, :service, :realm, :keytab, :gssapi
-    attr_reader :client_name
+    attr_reader :client_name, :logger
     attr_reader :request, :response, :headers
 
-    def initialize(request, service, realm, keytab)
+    def initialize(request, service, realm, keytab, logger)
       @request = request
       @service = service
       @realm = realm
       @keytab = keytab
       @headers = {}
       @client_name = nil
+      @logger = logger
     end
 
     def authenticate
       unless request.provided?
+        logger.debug "No authorization key provided: asking for one (401)"
         @response = unauthorized
         return false
       end
@@ -25,17 +27,21 @@ module Krb
       setup_gssapi( @service )
 
       if !gssapi.acquire_credentials
+        logger.debug "Unable to acquire credentials (500)"
         response = error
         return false
       end
 
       if request.negotiate?
+        logger.debug "Negotiate scheme proposed by client"
         if !negotiate(request)
+          logger.debug "Unable to authenticate (401)"
           response = unauthorized
           return false
         end
         @client_name = gssapi.display_name
       elsif request.basic?
+        logger.debug "Basic scheme proposed by client"
         user, password = request.credentials
         puts "FRED: Basic auth user=#{user} pass=#{password}"
         # TODO: Play with Kerberos to authenticate user
@@ -60,7 +66,7 @@ module Krb
         gssapi.acquire_credentials
         acquired = true
       rescue GSSAPI::GssApiError => e
-        puts "FRED[ERROR]: #{e.message}"
+        logger.error "Unable to acquire credentials: #{e.message}"
       end
       acquired
     end
@@ -70,14 +76,13 @@ module Krb
       begin
         otok = gssapi.accept_context(tok)
       rescue GSSAPI::GssApiError => e
-        puts "FRED[ERROR]: #{e.message}"
+        logger.error "Unable to validate token: #{e.message}"
       end
       otok
     end
 
     def negotiate(req)
       token = req.params
-      puts "FRED: Negotiate auth token=#{token}"
 
       otok = accept_token(::Base64.strict_decode64(token.chomp))
 
@@ -110,6 +115,15 @@ module Krb
           []
       ]
     end
+
+    def error
+      return [ 500,
+        { 'Content-Type' => 'text/plain',
+          'Content-Length' => '0' },
+          []
+      ]
+    end
+
 
   end
 end

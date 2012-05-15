@@ -22,7 +22,7 @@ module Goliath
           def call(env)
             req = ::Rack::Auth::Krb::Request.new(env)
 
-            a = ::Krb::Authenticator.new( req, service, realm, keytab )
+            a = ::Krb::Authenticator.new( req, service, realm, keytab, env.logger )
 
             if !a.authenticate
               return a.response
