@@ -11,6 +11,7 @@ module Krb
       @service = service
       @realm = realm
       @keytab = keytab
+      @headers = {}
     end
 
     def authenticate
