@@ -1,4 +1,5 @@
 require 'gssapi'
+require 'base64'
 
 module Krb
   class Authenticator
