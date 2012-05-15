@@ -6,7 +6,7 @@ module Goliath
   module Rack
     module Auth
       module Krb
-        class BasicAndNego < AbstractHandler
+        class BasicAndNego < ::Rack::Auth::AbstractHandler
           include Goliath::Rack::AsyncMiddleware
 
           attr_reader :realm, :keytab
