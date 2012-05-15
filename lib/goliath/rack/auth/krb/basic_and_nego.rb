@@ -1,4 +1,3 @@
-require 'rack/auth/abstract/handler'
 require 'rack/auth/krb/request'
 require 'krb/authenticator'
 
@@ -6,7 +5,7 @@ module Goliath
   module Rack
     module Auth
       module Krb
-        class BasicAndNego < ::Rack::Auth::AbstractHandler
+        class BasicAndNego
           include Goliath::Rack::AsyncMiddleware
 
           attr_reader :realm, :keytab

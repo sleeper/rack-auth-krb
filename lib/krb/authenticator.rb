@@ -85,5 +85,26 @@ module Krb
       return true
     end
 
+    def challenge(hash={})
+      "Negotiate"
+    end
+
+    def unauthorized(www_authenticate = challenge)
+      return [ 401,
+        { 'Content-Type' => 'text/plain',
+          'Content-Length' => '0',
+          'WWW-Authenticate' => www_authenticate.to_s },
+          []
+      ]
+    end
+
+    def bad_request
+      return [ 400,
+        { 'Content-Type' => 'text/plain',
+          'Content-Length' => '0' },
+          []
+      ]
+    end
+
   end
 end
