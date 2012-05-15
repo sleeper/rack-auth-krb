@@ -101,13 +101,13 @@ module Rack
             token = req.params
             puts "FRED: Negotiate auth token=#{token}"
 
-            otok = accept_token(Base64.strict_decode64(token.chomp))
+            otok = accept_token(::Base64.strict_decode64(token.chomp))
 
             if otok.nil?
               return false
             end
 
-            tok_b64 = Base64.strict_encode64(otok)
+            tok_b64 = ::Base64.strict_encode64(otok)
             additional_headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
             return true
         end
