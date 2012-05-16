@@ -32,6 +32,9 @@ module Rack
             end
 
             env['REMOTE_USER'] = a.client_name
+            if session
+              session['REMOTE_USER'] = a.client_name
+            end
             headers = a.headers
 
           else
