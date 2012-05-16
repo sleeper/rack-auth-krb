@@ -33,7 +33,10 @@ module Goliath
               end
 
               env['REMOTE_USER'] = a.client_name
-              session['REMOTE_USER'] = a.client_name
+              if session
+                session['REMOTE_USER'] = a.client_name
+              end
+
               headers = a.headers
             else
               env['REMOTE_USER'] = session['REMOTE_USER']

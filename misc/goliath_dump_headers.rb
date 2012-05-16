@@ -10,6 +10,7 @@ class DumpHeaders < Goliath::API
   use Goliath::Rack::Render, ['json', 'yaml']
 #  use Rack::Auth::Krb::BasicSPNEGO, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
   use Goliath::Rack::Auth::Krb::BasicAndNego, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
+  use Rack::Session::Cookie
 
   def on_headers(env, headers)
     env.logger.info 'received headers: ' + headers.inspect
