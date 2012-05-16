@@ -20,21 +20,30 @@ module Goliath
           end
 
           def call(env)
-            req = ::Rack::Auth::Krb::Request.new(env)
+            session = env['rack.session']
+            headers = {}
+            if session.nil? || !session['REMOTE_USER']
 
-            a = ::Krb::Authenticator.new( req, service, realm, keytab, env.logger )
+              req = ::Rack::Auth::Krb::Request.new(env)
 
-            if !a.authenticate
-              return a.response
+              a = ::Krb::Authenticator.new( req, service, realm, keytab, env.logger )
+
+              if !a.authenticate
+                return a.response
+              end
+
+              env['REMOTE_USER'] = a.client_name
+              session['REMOTE_USER'] = a.client_name
+              headers = a.headers
+            else
+              env['REMOTE_USER'] = session['REMOTE_USER']
             end
 
-            env['REMOTE_USER'] = a.client_name
-
-            super(env, a)
+            super(env, headers)
           end
 
-          def post_process(env, status, headers, body, auth)
-            [status, headers.merge(auth.headers), body]
+          def post_process(env, status, headers, body, additional_headers)
+            [status, headers.merge(additional_headers), body]
           end
 
         end

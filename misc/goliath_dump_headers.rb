@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'goliath'
+require 'rack/session/cookie'
 require 'goliath/rack/auth/krb/basic_and_nego'
 
 class DumpHeaders < Goliath::API

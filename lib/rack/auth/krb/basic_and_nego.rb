@@ -18,6 +18,9 @@ module Rack
         end
 
         def call(env)
+          session = env['rack.session']
+          headers = {}
+          if session.nil? || !session['REMOTE_USER']
             req = ::Rack::Auth::Krb::Request.new(env)
 
             logger = req.request.logger || NullLogger.new
@@ -29,10 +32,15 @@ module Rack
             end
 
             env['REMOTE_USER'] = a.client_name
+            headers = a.headers
 
-            status, headers, body = @app.call(env)
+          else
+            env['REMOTE_USER'] = session['REMOTE_USER']
+          end
 
-            [status, headers.merge(a.headers), body]
+          status, headers, body = @app.call(env)
+
+          [status, headers.merge(headers), body]
         end
       end
     end
