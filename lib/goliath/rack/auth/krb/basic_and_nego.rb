@@ -23,7 +23,7 @@ module Goliath
             session = env['rack.session']
             headers = {}
             if session.nil? || !session['REMOTE_USER']
-
+              env.logger "User not authenticated : delegate to Krb authenticator"
               req = ::Rack::Auth::Krb::Request.new(env)
 
               a = ::Krb::Authenticator.new( req, service, realm, keytab, env.logger )
@@ -39,6 +39,7 @@ module Goliath
 
               headers = a.headers
             else
+              env.logger "User #{session['REMOTE_USER']} already authenticated"
               env['REMOTE_USER'] = session['REMOTE_USER']
             end
 
