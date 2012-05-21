@@ -1,5 +1,6 @@
 require 'socket'
 require 'basic_and_nego/request'
+require 'basic_and_nego/gss'
 require 'gssapi'
 require 'base64'
 
@@ -52,22 +53,16 @@ module BasicAndNego
         return false
       end
 
-      setup_gssapi( @service )
-
-      if !gssapi.acquire_credentials
-        logger.debug "Unable to acquire credentials (500)"
-        response = error
-        return false
-      end
-
       if request.negotiate?
         logger.debug "Negotiate scheme proposed by client"
-        if !negotiate(request)
+        gss = BasicAndNego::GSS.new(service, realm, keytab)
+        if !gss.authenticate(request)
           logger.debug "Unable to authenticate (401)"
           response = unauthorized
           return false
         end
-        @client_name = gssapi.display_name
+        @client_name = gss.display_name
+
       elsif request.basic?
         logger.debug "Basic scheme proposed by client"
         user, password = request.credentials
@@ -82,9 +77,6 @@ module BasicAndNego
 
     private
 
-    def setup_gssapi(service)
-      @gssapi = GSSAPI::Simple.new(@realm, service, @keytab)
-    end
 
     def acquire_credentials
       return false if gssapi.nil?

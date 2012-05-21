@@ -48,4 +48,22 @@ describe BasicAndNego::Logic do
     a.process_request
   end
 
+  it "should ask for an authorization key if none is provided" do
+    env = {}
+    env['rack.session'] = {}
+    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a.authenticate
+    a.response.should_not be_nil
+    a.response[0].should == 401
+  end
+
+  it "should try authentication against GSS in case of Negotiate" do
+    env = {'HTTP_AUTHORIZATION' => "Negotiate ffggg"}
+    env['rack.session'] = {}
+    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    gss = double('gss').as_null_object
+    gss.should_receive(:authenticate).and_return(true)
+    BasicAndNego::GSS.should_receive(:new).and_return(gss)
+    a.authenticate
+  end
 end
