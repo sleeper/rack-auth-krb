@@ -2,7 +2,6 @@ require 'socket'
 require 'basic_and_nego/request'
 require 'basic_and_nego/gss'
 require 'basic_and_nego/krb'
-require 'gssapi'
 require 'base64'
 
 module BasicAndNego
@@ -56,32 +55,15 @@ module BasicAndNego
 
       if request.negotiate?
         logger.debug "Negotiate scheme proposed by client"
-        gss = BasicAndNego::GSS.new(service, realm, keytab)
-
-        if !gss.authenticate(request)
-          logger.debug "Unable to authenticate (401)"
-          @response = unauthorized
-          return false
-        end
-
-        @client_name = gss.display_name
+        return negotiate
 
       elsif request.basic?
-
         logger.debug "Basic scheme proposed by client"
-        user, password = request.credentials
-        krb = BasicAndNego::Krb.new(realm, keytab)
-
-        if !krb.authenticate(user, password)
-          logger.debug "Unable to authenticate (401)"
-          @response = unauthorized
-          return false
-        end
-        @client_name = user
+        return basic
 
       else
 
-        response = bad_request
+        @response = bad_request
         return false
       end
       true
@@ -89,6 +71,37 @@ module BasicAndNego
 
     private
 
+    def negotiate
+      begin
+        gss = BasicAndNego::GSS.new(service, realm, keytab)
+      rescue GSSAPI::GssApiError => e
+        logger.error "Unable to setup GSSAPI: #{e.message}"
+        @response = error
+        return false
+      end
+
+      if !gss.authenticate(request)
+        logger.debug "Unable to authenticate (401)"
+        @response = unauthorized
+        return false
+      end
+
+      @client_name = gss.display_name
+      true
+    end
+
+    def basic
+      user, password = request.credentials
+      krb = BasicAndNego::Krb.new(realm, keytab)
+
+      if !krb.authenticate(user, password)
+        logger.debug "Unable to authenticate (401)"
+        @response = unauthorized
+        return false
+      end
+      @client_name = user
+
+    end
 
     def acquire_credentials
       return false if gssapi.nil?
@@ -113,19 +126,6 @@ module BasicAndNego
       otok
     end
 
-    def negotiate(req)
-      token = req.params
-
-      otok = accept_token(::Base64.strict_decode64(token.chomp))
-
-      if otok.nil?
-        return false
-      end
-
-      tok_b64 = ::Base64.strict_encode64(otok)
-      headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
-      return true
-    end
 
     def challenge(hash={})
       "Negotiate"

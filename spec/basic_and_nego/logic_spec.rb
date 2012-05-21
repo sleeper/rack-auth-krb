@@ -63,15 +63,16 @@ describe BasicAndNego::Logic do
       env['rack.session'] = {}
       @a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
       @gss = double('gss').as_null_object
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
     end
 
     it "should try authentication against GSS in case of Negotiate" do
+      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return(true)
       @a.authenticate
     end
 
     it "should return 'unauthorized' if authentication fails" do 
+      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return(false)
       @a.authenticate.should be_false
       @a.response.should_not be_nil
@@ -79,16 +80,25 @@ describe BasicAndNego::Logic do
     end
 
     it "should return true if authentication worked" do
+      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return(true)
       @a.authenticate.should be_true
       @a.response.should be_nil
     end
 
     it "should set client's name if authentication worked" do
+      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return(true)
       @gss.should_receive(:display_name).and_return("fred")
       @a.authenticate.should be_true
       @a.client_name.should == "fred"
+    end
+
+    it "should catch GSSAPI exceptions" do
+      BasicAndNego::GSS.should_receive(:new).and_raise(GSSAPI::GssApiError)
+      @a.authenticate.should be_false
+      @a.response.should_not be_nil
+      @a.response[0].should == 500
     end
   end
 
@@ -120,7 +130,7 @@ describe BasicAndNego::Logic do
       @a.authenticate.should be_true
       @a.response.should be_nil
     end
-      
+
     it "should set client's name if authentication worked" do
       @krb.should_receive(:authenticate).and_return(true)
       @a.authenticate.should be_true

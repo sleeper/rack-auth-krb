@@ -1,21 +1,34 @@
+require 'gssapi'
+
 module BasicAndNego
   class GSS
-    def initialize(service, realm, keytab)
+    attr_reader :gssapi, :logger
+
+    #
+    # Can raise GSSAPI::GssApiError
+    #
+    def initialize(logger, service, realm, keytab)
+      @logger = logger
       @service = service
       @realm = realm
-      @keytab = keytab 
-#      setup_gssapi( @service )
+      @keytab = keytab
+      @gssapi = GSSAPI::Simple.new(@realm, service, @keytab)
 
-#      if !gssapi.acquire_credentials
-#        logger.debug "Unable to acquire credentials (500)"
-#        response = error
-#        return false
-#      end
-
+      gssapi.acquire_credentials
     end
 
-    def setup_gssapi(service)
-      @gssapi = GSSAPI::Simple.new(@realm, service, @keytab)
+    def negotiate(req)
+      token = req.params
+
+      otok = accept_token(::Base64.strict_decode64(token.chomp))
+
+      if otok.nil?
+        return false
+      end
+
+      tok_b64 = ::Base64.strict_encode64(otok)
+      headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
+      return true
     end
   end
 end
