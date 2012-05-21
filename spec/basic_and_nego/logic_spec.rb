@@ -56,51 +56,40 @@ describe BasicAndNego::Logic do
     a.response.should_not be_nil
     a.response[0].should == 401
   end
+
   describe "GSS authentication" do 
-    it "should try authentication against GSS in case of Negotiate" do
+    before(:each) do 
       env = {'HTTP_AUTHORIZATION' => "Negotiate ffggg"}
       env['rack.session'] = {}
-      a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
-      gss = double('gss').as_null_object
-      gss.should_receive(:authenticate).and_return(true)
-      BasicAndNego::GSS.should_receive(:new).and_return(gss)
-      a.authenticate
+      @a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+      @gss = double('gss').as_null_object
+      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+    end
+
+    it "should try authentication against GSS in case of Negotiate" do
+      @gss.should_receive(:authenticate).and_return(true)
+      @a.authenticate
     end
 
     it "should return 'unauthorized' if authentication fails" do 
-      env = {'HTTP_AUTHORIZATION' => "Negotiate ffggg"}
-      env['rack.session'] = {}
-      a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
-      gss = double('gss').as_null_object
-      gss.should_receive(:authenticate).and_return(false)
-      BasicAndNego::GSS.should_receive(:new).and_return(gss)
-      a.authenticate.should be_false
-      a.response.should_not be_nil
-      a.response[0].should == 401
+      @gss.should_receive(:authenticate).and_return(false)
+      @a.authenticate.should be_false
+      @a.response.should_not be_nil
+      @a.response[0].should == 401
 
     end
 
     it "should return true if authentication worked" do
-      env = {'HTTP_AUTHORIZATION' => "Negotiate ffggg"}
-      env['rack.session'] = {}
-      a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
-      gss = double('gss').as_null_object
-      gss.should_receive(:authenticate).and_return(true)
-      BasicAndNego::GSS.should_receive(:new).and_return(gss)
-      a.authenticate.should be_true
-      a.response.should be_nil
+      @gss.should_receive(:authenticate).and_return(true)
+      @a.authenticate.should be_true
+      @a.response.should be_nil
     end
 
     it "should set client's name if authentication worked" do
-      env = {'HTTP_AUTHORIZATION' => "Negotiate ffggg"}
-      env['rack.session'] = {}
-      a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
-      gss = double('gss').as_null_object
-      gss.should_receive(:authenticate).and_return(true)
-      gss.should_receive(:display_name).and_return("fred")
-      BasicAndNego::GSS.should_receive(:new).and_return(gss)
-      a.authenticate.should be_true
-      a.client_name.should == "fred"
+      @gss.should_receive(:authenticate).and_return(true)
+      @gss.should_receive(:display_name).and_return("fred")
+      @a.authenticate.should be_true
+      @a.client_name.should == "fred"
     end
 
   end
