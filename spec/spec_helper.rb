@@ -20,3 +20,12 @@ def setup_rack(app = nil, opts={}, &block)
     run app
   end
 end
+
+def not_authorized_response
+  [ 401,
+    { 'Content-Type' => 'text/plain',
+      'Content-Length' => '0',
+      'WWW-Authenticate' => "Negotiate"},
+      []
+  ]
+end
