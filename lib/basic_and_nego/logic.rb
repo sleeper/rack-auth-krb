@@ -1,20 +1,48 @@
+require 'socket'
+require 'basic_and_nego/request'
 require 'gssapi'
 require 'base64'
 
-module Krb
-  class Authenticator
-    attr_reader :env, :service, :realm, :keytab, :gssapi
+module BasicAndNego
+  class Logic
+    attr_reader :env, :service, :realm, :keytab, :hostname
     attr_reader :client_name, :logger
     attr_reader :request, :response, :headers
 
-    def initialize(request, service, realm, keytab, logger)
-      @request = request
+    def initialize(env, logger, realm, keytab)
+      @env = env
       @service = service
       @realm = realm
       @keytab = keytab
       @headers = {}
-      @client_name = nil
+      @hostname = Socket::gethostname
+      @service = service || "http@#{hostname}"
+
       @logger = logger
+      @client_name = nil
+      @request = BasicAndNego::Request.new(env)
+    end
+
+    def process_request
+      session = env['rack.session']
+
+      # If the user is not yet authenticated, or if
+      # there's no session ... well we have to authenticate him
+      if session.nil? || !session['REMOTE_USER']
+        logger.debug "User not authenticated : delegate to Krb authenticator"
+
+        if !authenticate
+          return
+        end
+
+        env['REMOTE_USER'] = client_name
+        if session
+          session['REMOTE_USER'] = client_name
+        end
+      else
+        logger.debug "User #{session['REMOTE_USER']} already authenticated"
+        env['REMOTE_USER'] = session['REMOTE_USER']
+      end
     end
 
     def authenticate
