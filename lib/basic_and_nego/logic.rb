@@ -1,6 +1,7 @@
 require 'socket'
 require 'basic_and_nego/request'
 require 'basic_and_nego/gss'
+require 'basic_and_nego/krb'
 require 'gssapi'
 require 'base64'
 
@@ -56,9 +57,10 @@ module BasicAndNego
       if request.negotiate?
         logger.debug "Negotiate scheme proposed by client"
         gss = BasicAndNego::GSS.new(service, realm, keytab)
+
         if !gss.authenticate(request)
           logger.debug "Unable to authenticate (401)"
-          response = unauthorized
+          @response = unauthorized
           return false
         end
         @client_name = gss.display_name
@@ -66,7 +68,8 @@ module BasicAndNego
       elsif request.basic?
         logger.debug "Basic scheme proposed by client"
         user, password = request.credentials
-        puts "FRED: Basic auth user=#{user} pass=#{password}"
+        krb = BasicAndNego::Krb.new(realm, keytab)
+        krb.authenticate(user, password)
         # TODO: Play with Kerberos to authenticate user
       else
         response = bad_request
