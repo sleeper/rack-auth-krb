@@ -63,15 +63,24 @@ module BasicAndNego
           @response = unauthorized
           return false
         end
+
         @client_name = gss.display_name
 
       elsif request.basic?
+
         logger.debug "Basic scheme proposed by client"
         user, password = request.credentials
         krb = BasicAndNego::Krb.new(realm, keytab)
-        krb.authenticate(user, password)
-        # TODO: Play with Kerberos to authenticate user
+
+        if !krb.authenticate(user, password)
+          logger.debug "Unable to authenticate (401)"
+          @response = unauthorized
+          return false
+        end
+        @client_name = user
+
       else
+
         response = bad_request
         return false
       end

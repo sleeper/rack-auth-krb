@@ -76,7 +76,6 @@ describe BasicAndNego::Logic do
       @a.authenticate.should be_false
       @a.response.should_not be_nil
       @a.response[0].should == 401
-
     end
 
     it "should return true if authentication worked" do
@@ -91,20 +90,41 @@ describe BasicAndNego::Logic do
       @a.authenticate.should be_true
       @a.client_name.should == "fred"
     end
-
   end
 
   describe "Kerberos authentication" do
-    it "should try authentication against Kerberos in case of Basic" do
+    before(:each) do 
       env = {'HTTP_AUTHORIZATION' => "Basic #{Base64.encode64('fred:pass')}"}
       env['rack.session'] = {}
-      realm = "my realm"
-      keytab = "my keytab"
-      a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, realm, keytab)
-      krb = double('kerberos').as_null_object
-      krb.should_receive(:authenticate).with("fred", "pass").and_return(true)
-      BasicAndNego::Krb.should_receive(:new).with(realm, keytab).and_return(krb)
-      a.authenticate
+      @realm = "my realm"
+      @keytab = "my keytab"
+      @a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, @realm, @keytab)
+      @krb = double('kerberos').as_null_object
+      BasicAndNego::Krb.should_receive(:new).with(@realm, @keytab).and_return(@krb)
+    end
+
+    it "should try authentication against Kerberos in case of Basic" do
+      @krb.should_receive(:authenticate).with("fred", "pass").and_return(true)
+      @a.authenticate
+    end
+
+    it "should return 'unauthorized' if authentication fails" do 
+      @krb.should_receive(:authenticate).and_return(false)
+      @a.authenticate.should be_false
+      @a.response.should_not be_nil
+      @a.response[0].should == 401
+    end
+
+    it "should return true if authentication worked" do
+      @krb.should_receive(:authenticate).and_return(true)
+      @a.authenticate.should be_true
+      @a.response.should be_nil
+    end
+      
+    it "should set client's name if authentication worked" do
+      @krb.should_receive(:authenticate).and_return(true)
+      @a.authenticate.should be_true
+      @a.client_name.should == "fred"
     end
   end
 end
