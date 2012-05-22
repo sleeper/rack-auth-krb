@@ -17,18 +17,14 @@ module BasicAndNego
       gssapi.acquire_credentials
     end
 
-    def negotiate(req)
-      token = req.params
-
-      otok = accept_token(::Base64.strict_decode64(token.chomp))
-
-      if otok.nil?
-        return false
-      end
-
-      tok_b64 = ::Base64.strict_encode64(otok)
-      headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
-      return true
+    #
+    #  Attempt to authenticate the furnished token against gssapi
+    #
+    # It return nil (in case of error) or the token sent back
+    # by the gssapi if the authentication is successfull
+    #
+    def authenticate(token)
+      return gssapi.accept_context(token)
     end
   end
 end

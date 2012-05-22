@@ -80,11 +80,24 @@ module BasicAndNego
         return false
       end
 
-      if !gss.authenticate(request)
+      token = Base64.strict_decode64(request.params)
+
+      begin
+        out_tok = gss.authenticate(token)
+      rescue GSSAPI::GssApiError => e
+        logger.error "Unable to authenticate: #{e.message}"
+        @response = unauthorized
+        return false
+      end
+
+      if !out_tok
         logger.debug "Unable to authenticate (401)"
         @response = unauthorized
         return false
       end
+
+      tok_b64 = ::Base64.strict_encode64(out_tok)
+      headers['WWW-Authenticate'] = "Negotiate #{tok_b64}"
 
       @client_name = gss.display_name
       true
@@ -116,15 +129,6 @@ module BasicAndNego
       acquired
     end
 
-    def accept_token( tok )
-      otok = nil
-      begin
-        otok = gssapi.accept_context(tok)
-      rescue GSSAPI::GssApiError => e
-        logger.error "Unable to validate token: #{e.message}"
-      end
-      otok
-    end
 
 
     def challenge(hash={})
