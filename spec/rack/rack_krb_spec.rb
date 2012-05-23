@@ -31,9 +31,8 @@ describe "Rack::Auth::Krb::BasicAndNego" do
   it "should return a 401 if authentication failed" do
     app = setup_rack(@basic_app)
     auth = mock("krb auth").as_null_object
-    auth.should_receive(:authenticate).and_return(false)
-    auth.should_receive(:response).and_return(not_authorized_response)
-    ::Krb::Authenticator.should_receive(:new).and_return(auth)
+    auth.should_receive(:response).twice.and_return(not_authorized_response)
+    BasicAndNego::Logic.should_receive(:new).and_return(auth)
 
     app.call(@env).first.should == 401
   end

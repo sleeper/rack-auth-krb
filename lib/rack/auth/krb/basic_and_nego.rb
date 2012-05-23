@@ -1,7 +1,7 @@
-require 'rack/auth/krb/request'
-require 'krb/authenticator'
+require 'basic_and_nego/request'
+require 'basic_and_nego/logic'
+require 'basic_and_nego/nulllogger'
 require 'socket'
-require 'rack/auth/krb/nulllogger'
 
 module Rack
   module Auth
@@ -18,32 +18,13 @@ module Rack
         end
 
         def call(env)
-          session = env['rack.session']
-          headers = {}
-          if session.nil? || !session['REMOTE_USER']
-            req = ::Rack::Auth::Krb::Request.new(env)
+          a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab)
 
-            logger = req.request.logger || NullLogger.new
-
-            a = ::Krb::Authenticator.new( req, service, realm, keytab, logger)
-
-            if !a.authenticate
-              return a.response
-            end
-
-            env['REMOTE_USER'] = a.client_name
-            if session
-              session['REMOTE_USER'] = a.client_name
-            end
-            headers = a.headers
-
-          else
-            env['REMOTE_USER'] = session['REMOTE_USER']
-          end
+          return a.response unless a.response.nil?
 
           status, headers, body = @app.call(env)
 
-          [status, headers.merge(headers), body]
+          [status, headers.merge(a.headers), body]
         end
       end
     end
