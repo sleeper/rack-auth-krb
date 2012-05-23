@@ -19,7 +19,7 @@ module Goliath
           end
 
           def call(env)
-            a = ::BasicAndNego::Logic.new(env, realm, keytab)
+            a = ::BasicAndNego::Logic.new(env, env.logger, realm, keytab)
 
             return a.response unless a.response.nil?
 
