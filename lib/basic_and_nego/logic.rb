@@ -71,7 +71,7 @@ module BasicAndNego
 
     def negotiate
       begin
-        gss = BasicAndNego::GSS.new(service, realm, keytab)
+        gss = BasicAndNego::GSS.new(logger, service, realm, keytab)
       rescue GSSAPI::GssApiError => e
         logger.error "Unable to setup GSSAPI: #{e.message}"
         @response = error
