@@ -1,5 +1,7 @@
-require 'rack/auth/krb/request'
-require 'krb/authenticator'
+#require 'goliath/rack/async_middleware'
+require 'goliath'
+require 'basic_and_nego/request'
+require 'basic_and_nego/logic'
 
 module Goliath
   module Rack
@@ -17,7 +19,7 @@ module Goliath
           end
 
           def call(env)
-            a = BasicAndNego::Logic.new(env, realm, keytab)
+            a = ::BasicAndNego::Logic.new(env, realm, keytab)
 
             return a.response unless a.response.nil?
 
