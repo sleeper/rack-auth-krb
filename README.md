@@ -1,4 +1,14 @@
 rack-auth-krb
 =============
 
-Kerberos authentication (Basic and SPNEGO)
+Kerberos/GSSAPI authentication (Basic and Negotiate) rack middleware.
+
+Actually this middleware should (hopefully) work for standard Rack
+application and as a Goliath middleware.
+
+Rack applications
+=================
+
+
+Goliath applications
+====================
