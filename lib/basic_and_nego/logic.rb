@@ -7,7 +7,7 @@ require 'base64'
 module BasicAndNego
   class Logic
     attr_reader :env, :service, :realm, :keytab, :hostname
-    attr_reader :client_name, :logger
+    attr_reader :client_name, :logger, :session
     attr_reader :request, :response, :headers
 
     def initialize(env, logger, realm, keytab)
@@ -22,10 +22,10 @@ module BasicAndNego
       @logger = logger
       @client_name = nil
       @request = BasicAndNego::Request.new(env)
+      @session = env['rack.session']
     end
 
     def process_request
-      session = env['rack.session']
 
       # If the user is not yet authenticated, or if
       # there's no session ... well we have to authenticate him
@@ -37,9 +37,7 @@ module BasicAndNego
         end
 
         env['REMOTE_USER'] = client_name
-        if session
-          session['REMOTE_USER'] = client_name
-        end
+        session['REMOTE_USER'] = client_name if session
       else
         logger.debug "User #{session['REMOTE_USER']} already authenticated"
         env['REMOTE_USER'] = session['REMOTE_USER']
