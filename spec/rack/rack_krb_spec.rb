@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'rack/auth/krb/basic_and_nego'
+require 'logger'
 
 class DummyApp
   def call(env)
@@ -25,13 +26,14 @@ describe "Rack::Auth::Krb::BasicAndNego" do
 
   before(:each) do
     @basic_app = lambda{|env| [200,{'Content-Type' => 'text/plain'},'OK']}
-       @env = env_with_params("/")
+    @env = env_with_params("/")
   end
 
   it "should return a 401 if authentication failed" do
     app = setup_rack(@basic_app)
     auth = mock("krb auth").as_null_object
     auth.should_receive(:response).twice.and_return(not_authorized_response)
+    auth.should_receive(:process_request)
     BasicAndNego::Logic.should_receive(:new).and_return(auth)
 
     app.call(@env).first.should == 401

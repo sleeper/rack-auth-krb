@@ -19,6 +19,7 @@ module Rack
 
         def call(env)
           a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab)
+          a.process_request
 
           return a.response unless a.response.nil?
 

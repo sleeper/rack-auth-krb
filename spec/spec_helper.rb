@@ -15,6 +15,7 @@ def setup_rack(app = nil, opts={}, &block)
   app ||= block if block_given?
 
   Rack::Builder.new do
+    use Rack::Logger
     use opts[:session] if opts[:session]
     use Rack::Auth::Krb::BasicAndNego, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
     run app
