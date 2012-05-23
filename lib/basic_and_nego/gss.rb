@@ -26,5 +26,9 @@ module BasicAndNego
     def authenticate(token)
       return gssapi.accept_context(token)
     end
+
+    def display_name
+      return gssapi.display_name
+    end
   end
 end
