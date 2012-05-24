@@ -11,16 +11,16 @@ module BasicAndNego
     end
 
     def authenticate(user, passwd)
+      successfull = false
       Kerberos::Krb5.new do |krb5|
-        successfull = false
         begin
           krb5.get_init_creds_password(user, passwd)
           successfull = true
         rescue Kerberos::Krb5::Exception => e
           logger.error "Failed to authenticate user '#{user}': #{e.message}"
         end
-        successfull
       end
+      successfull
     end
   end
 end
