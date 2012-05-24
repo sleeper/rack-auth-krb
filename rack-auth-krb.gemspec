@@ -2,7 +2,7 @@ require 'rubygems'
 
 Gem::Specification.new do |gem|
   gem.name      = 'rack-auth-krb'
-  gem.version   = '0.0.2'
+  gem.version   = '0.0.3'
   gem.authors   = ["Frederick Ros"]
   gem.email     = 'frederick.ros@gmail.com'
   gem.homepage  = 'https://github.com/sleeper/rack-auth-krb'
@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- spec/*`.split("\n")
 
+  gem.add_dependency "rack"
   gem.add_dependency "gssapi"
   gem.add_dependency "rkerberos"
 
