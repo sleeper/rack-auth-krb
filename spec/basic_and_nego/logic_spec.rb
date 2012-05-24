@@ -125,9 +125,10 @@ describe BasicAndNego::Logic do
       env['rack.session'] = {}
       @realm = "my realm"
       @keytab = "my keytab"
-      @a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, @realm, @keytab)
+      @logger = BasicAndNego::NullLogger.new
+      @a = BasicAndNego::Logic.new(env, @logger, @realm, @keytab)
       @krb = double('kerberos').as_null_object
-      BasicAndNego::Krb.should_receive(:new).with(@realm, @keytab).and_return(@krb)
+      BasicAndNego::Krb.should_receive(:new).with(@logger, @realm, @keytab).and_return(@krb)
     end
 
     it "should try authentication against Kerberos in case of Basic" do

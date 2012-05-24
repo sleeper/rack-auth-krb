@@ -17,7 +17,7 @@ def setup_rack(app = nil, opts={}, &block)
   Rack::Builder.new do
     use Rack::Logger
     use opts[:session] if opts[:session]
-    use Rack::Auth::Krb::BasicAndNego, 'NCE.AMADEUS.NET', '/etc/krb5.keytab'
+    use Rack::Auth::Krb::BasicAndNego, 'my realm', 'my keytab'
     run app
   end
 end
