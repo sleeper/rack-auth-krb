@@ -103,7 +103,7 @@ module BasicAndNego
 
     def basic
       user, password = request.credentials
-      krb = BasicAndNego::Krb.new(realm, keytab)
+      krb = BasicAndNego::Krb.new(logger, realm, keytab)
 
       if !krb.authenticate(user, password)
         logger.debug "Unable to authenticate (401)"
