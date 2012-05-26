@@ -1,4 +1,3 @@
-#require 'goliath/rack/async_middleware'
 require 'goliath'
 require 'basic_and_nego/request'
 require 'basic_and_nego/logic'
@@ -10,7 +9,7 @@ module Goliath
         class BasicAndNego
           include Goliath::Rack::AsyncMiddleware
 
-          attr_reader :realm, :keytab, :hostname, :service
+          attr_reader :realm, :keytab, :service
 
           def initialize(app, realm, keytab, service=nil)
             @app = app
@@ -23,7 +22,7 @@ module Goliath
             a = ::BasicAndNego::Logic.new(env, env.logger, realm, keytab, service)
             a.process_request
 
-            return a.response unless a.response.nil?
+            return a.response if a.response
 
             super(env, a.headers)
           end

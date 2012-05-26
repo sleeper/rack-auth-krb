@@ -7,13 +7,12 @@ module Rack
   module Auth
     module Krb
       class BasicAndNego
-        attr_reader :realm, :keytab, :hostname, :service
+        attr_reader :realm, :keytab, :service
 
         def initialize(app, realm, keytab, service=nil)
           @app = app
           @realm = realm
           @keytab = keytab
-          @hostname = Socket::gethostname
           @service = service
         end
 
@@ -21,7 +20,7 @@ module Rack
           a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab, service)
           a.process_request
 
-          return a.response unless a.response.nil?
+          return a.response if a.response
 
           status, headers, body = @app.call(env)
 

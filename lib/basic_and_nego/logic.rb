@@ -6,40 +6,36 @@ require 'base64'
 
 module BasicAndNego
   class Logic
-    attr_reader :env, :service, :realm, :keytab, :hostname
+    DEFAULT_SERVICE = "http@#{Socket::gethostname}"
+
+    attr_reader :env, :service, :realm, :keytab
     attr_reader :client_name, :logger, :session
     attr_reader :request, :response, :headers
 
     def initialize(env, logger, realm, keytab, service)
       @env = env
+      @logger = logger
       @realm = realm
       @keytab = keytab
-      @headers = {}
-      @hostname = Socket::gethostname
-      @service = service || "http@#{hostname}"
+      @service = service || DEFAULT_SERVICE
 
-      @logger = logger
+      @headers = {}
       @client_name = nil
       @request = BasicAndNego::Request.new(env)
       @session = env['rack.session']
     end
 
     def process_request
-
-      # If the user is not yet authenticated, or if
-      # there's no session ... well we have to authenticate him
-      if session.nil? || !session['REMOTE_USER']
-        logger.debug "User not authenticated : delegate to Krb authenticator"
-
-        if !authenticate
-          return
-        end
-
-        env['REMOTE_USER'] = client_name
-        session['REMOTE_USER'] = client_name if session
-      else
+      if authenticated
         logger.debug "User #{session['REMOTE_USER']} already authenticated"
         env['REMOTE_USER'] = session['REMOTE_USER']
+      else
+        logger.debug "User not authenticated : delegate to Krb authenticator"
+
+        if authenticate
+          env['REMOTE_USER'] = client_name
+          session['REMOTE_USER'] = client_name if session
+        end
       end
     end
 
@@ -59,14 +55,18 @@ module BasicAndNego
         return basic
 
       else
-
         @response = bad_request
         return false
       end
+
       true
     end
 
     private
+
+    def authenticated
+      session && session['REMOTE_USER']
+    end
 
     def negotiate
       begin
@@ -112,20 +112,6 @@ module BasicAndNego
       @client_name = user
 
     end
-
-    def acquire_credentials
-      return false if gssapi.nil?
-
-      acquired = false
-      begin
-        gssapi.acquire_credentials
-        acquired = true
-      rescue GSSAPI::GssApiError => e
-        logger.error "Unable to acquire credentials: #{e.message}"
-      end
-      acquired
-    end
-
 
 
     def challenge(hash={})
