@@ -14,11 +14,11 @@ module Rack
           @realm = realm
           @keytab = keytab
           @hostname = Socket::gethostname
-          @service = service || "http@#{hostname}"
+          @service = service
         end
 
         def call(env)
-          a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab)
+          a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab, service)
           a.process_request
 
           return a.response unless a.response.nil?

@@ -16,10 +16,11 @@ module Goliath
             @app = app
             @realm = realm
             @keytab = keytab
+            @service = service
           end
 
           def call(env)
-            a = ::BasicAndNego::Logic.new(env, env.logger, realm, keytab)
+            a = ::BasicAndNego::Logic.new(env, env.logger, realm, keytab, service)
             a.process_request
 
             return a.response unless a.response.nil?
