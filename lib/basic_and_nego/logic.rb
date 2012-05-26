@@ -129,14 +129,14 @@ module BasicAndNego
 
 
     def challenge(hash={})
-      "Negotiate"
+      ["Negotiate", "Basic"]
     end
 
     def unauthorized(www_authenticate = challenge)
       return [ 401,
         { 'Content-Type' => 'text/plain',
           'Content-Length' => '0',
-          'WWW-Authenticate' => www_authenticate.to_s },
+          'WWW-Authenticate' => www_authenticate },
           []
       ]
     end
