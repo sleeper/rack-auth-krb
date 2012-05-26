@@ -10,9 +10,8 @@ module BasicAndNego
     attr_reader :client_name, :logger, :session
     attr_reader :request, :response, :headers
 
-    def initialize(env, logger, realm, keytab)
+    def initialize(env, logger, realm, keytab, service)
       @env = env
-      @service = service
       @realm = realm
       @keytab = keytab
       @headers = {}
