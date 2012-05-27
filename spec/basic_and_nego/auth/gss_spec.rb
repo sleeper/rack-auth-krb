@@ -24,4 +24,3 @@ describe BasicAndNego::Auth::GSS do
   end
 
 end
-

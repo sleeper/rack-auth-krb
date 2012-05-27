@@ -18,12 +18,12 @@ describe Goliath::Rack::Auth::Krb::BasicAndNego do
     it 'returns status, headers and body from the app' do
       app_headers = {'Content-Type' => 'hash'}
       app_body = {:a => 1, :b => 2}
-      l = double("logic").as_null_object
-      l.should_receive(:response).and_return(nil)
+      p = double("processor").as_null_object
+      p.should_receive(:response).and_return(nil)
       add_headers = {"fred" => "foo"}
-      l.should_receive(:headers).and_return(add_headers)
-      ::BasicAndNego::Processor.should_receive(:new).and_return(l)
-      l.should_receive(:process_request)
+      p.should_receive(:headers).and_return(add_headers)
+      ::BasicAndNego::Processor.should_receive(:new).and_return(p)
+      p.should_receive(:process_request)
       @app.should_receive(:call).and_return([200, app_headers, app_body])
 
       status, headers, body = @auth.call(@env)
@@ -35,11 +35,11 @@ describe Goliath::Rack::Auth::Krb::BasicAndNego do
     it "returns error in case of failing authentication" do
       app_headers = {'Content-Type' => 'hash'}
       app_body = {:a => 1, :b => 2}
-      l = double("logic").as_null_object
+      p = double("processor").as_null_object
       r = [401, {}, "foo"]
-      l.should_receive(:response).twice.and_return(r)
-      l.should_receive(:process_request)
-      ::BasicAndNego::Processor.should_receive(:new).and_return(l)
+      p.should_receive(:response).twice.and_return(r)
+      p.should_receive(:process_request)
+      ::BasicAndNego::Processor.should_receive(:new).and_return(p)
 
       response = @auth.call(@env)
       response.should =~ r

@@ -14,7 +14,7 @@ module BasicAndNego
       @service = service || DEFAULT_SERVICE
 
       @request = BasicAndNego::Request.new(@env)
-      @authenticator = @request.authenticator.new(@request, @logger, @realm, @keytab)
+      @authenticator = @request.authenticator.new(@request, @logger, @realm, @keytab, @service)
       @session = @env['rack.session']
     end
 
@@ -27,7 +27,7 @@ module BasicAndNego
 
         if authenticate
           @env['REMOTE_USER'] = client_name
-          @session['REMOTE_USER'] = client_name if session
+          @session['REMOTE_USER'] = client_name if @session
         end
       end
     end
@@ -37,7 +37,7 @@ module BasicAndNego
     end
 
     def headers
-      @authenticator.headers
+      @authenticator.headers || {}
     end
 
     def response

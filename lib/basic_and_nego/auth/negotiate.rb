@@ -1,3 +1,4 @@
+require 'basic_and_nego/auth/base'
 require 'basic_and_nego/auth/gss'
 require 'base64'
 
@@ -5,7 +6,7 @@ module BasicAndNego
   module Auth
     class Negotiate < Base
 
-      def initialize(request, logger, realm, keytab)
+      def initialize(request, logger, realm, keytab, service)
         super
         setup_gss
       end

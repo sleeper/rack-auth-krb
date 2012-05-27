@@ -1,12 +1,13 @@
+require 'basic_and_nego/auth/base'
 require 'basic_and_nego/auth/krb'
 
 module BasicAndNego
   module Auth
     class Basic < Base
 
-      def initialize(request, logger, realm, keytab)
+      def initialize(request, logger, realm, keytab, service)
         super
-        @krb = BasicAndNego::Krb.new(@logger, @realm, @keytab)
+        @krb = BasicAndNego::Auth::Krb.new(@logger, @realm, @keytab)
       end
 
       def process

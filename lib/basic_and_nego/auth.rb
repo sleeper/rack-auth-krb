@@ -1,5 +1,3 @@
-require 'basic_and_nego/auth/responses'
-require 'basic_and_nego/auth/base'
 require 'basic_and_nego/auth/none'
 require 'basic_and_nego/auth/basic'
 require 'basic_and_nego/auth/negotiate'

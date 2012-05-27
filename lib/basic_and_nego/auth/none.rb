@@ -1,3 +1,5 @@
+require 'basic_and_nego/auth/base'
+
 module BasicAndNego
   module Auth
     class None < Base

@@ -13,7 +13,7 @@ module BasicAndNego
         @service = service
         @realm = realm
         @keytab = keytab
-        @gssapi = GSSAPI::Simple.new(@realm, service, @keytab)
+        @gssapi = GSSAPI::Simple.new(@realm, @service, @keytab)
 
         gssapi.acquire_credentials
       end
