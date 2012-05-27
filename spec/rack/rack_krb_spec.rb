@@ -34,7 +34,7 @@ describe "Rack::Auth::Krb::BasicAndNego" do
     auth = mock("krb auth").as_null_object
     auth.should_receive(:response).twice.and_return(not_authorized_response)
     auth.should_receive(:process_request)
-    BasicAndNego::Logic.should_receive(:new).and_return(auth)
+    BasicAndNego::Processor.should_receive(:new).and_return(auth)
 
     app.call(@env).first.should == 401
   end

@@ -7,7 +7,7 @@ describe BasicAndNego::Processor do
     env = {}
     env['rack.session'] = {}
     env['rack.session']['REMOTE_USER'] = 'fred'
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.process_request
     a.response.should be_nil
     a.headers.should be_empty
@@ -15,14 +15,14 @@ describe BasicAndNego::Processor do
 
   it "should try to authenticate if there's no session" do
     env = {}
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.should_receive(:authenticate)
     a.process_request
   end
 
   it "should set REMOTE_USER if user authenticated" do
     env = {}
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.should_receive(:authenticate).and_return(true)
     a.should_receive(:client_name).and_return("fred")
     a.process_request
@@ -32,7 +32,7 @@ describe BasicAndNego::Processor do
   it "should update the session if user authenticated" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.should_receive(:authenticate).and_return(true)
     a.should_receive(:client_name).twice.and_return("fred")
     a.process_request
@@ -43,7 +43,7 @@ describe BasicAndNego::Processor do
   it "should try to authenticate if user is not yet authenticated" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.should_receive(:authenticate)
     a.process_request
   end
@@ -51,7 +51,7 @@ describe BasicAndNego::Processor do
   it "should ask for an authorization key if none is provided" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
     a.authenticate
     a.response.should_not be_nil
     a.response[0].should == 401
@@ -61,7 +61,7 @@ describe BasicAndNego::Processor do
     before(:each) do 
       env = {'HTTP_AUTHORIZATION' => "Negotiate VGhpcyBpcyBteSB0b2tlbg=="}
       env['rack.session'] = {}
-      @a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+      @a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file', nil)
       @gss = double('gss').as_null_object
     end
 
@@ -126,7 +126,7 @@ describe BasicAndNego::Processor do
       @realm = "my realm"
       @keytab = "my keytab"
       @logger = BasicAndNego::NullLogger.new
-      @a = BasicAndNego::Processor.new(env, @logger, @realm, @keytab)
+      @a = BasicAndNego::Processor.new(env, @logger, @realm, @keytab, nil)
       @krb = double('kerberos').as_null_object
       BasicAndNego::Auth::Krb.should_receive(:new).with(@logger, @realm, @keytab).and_return(@krb)
     end

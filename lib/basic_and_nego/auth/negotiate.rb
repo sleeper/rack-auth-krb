@@ -20,7 +20,7 @@ module BasicAndNego
       private
 
       def setup_gss
-        @gss = BasicAndNego::GSS.new(@logger, @service, @realm, @keytab)
+        @gss = BasicAndNego::Auth::GSS.new(@logger, @service, @realm, @keytab)
       rescue GSSAPI::GssApiError => e
         @logger.error "Unable to setup GSSAPI: #{e.message}"
         @response = error

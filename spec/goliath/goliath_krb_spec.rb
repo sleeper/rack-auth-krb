@@ -22,7 +22,7 @@ describe Goliath::Rack::Auth::Krb::BasicAndNego do
       l.should_receive(:response).and_return(nil)
       add_headers = {"fred" => "foo"}
       l.should_receive(:headers).and_return(add_headers)
-      ::BasicAndNego::Logic.should_receive(:new).and_return(l)
+      ::BasicAndNego::Processor.should_receive(:new).and_return(l)
       l.should_receive(:process_request)
       @app.should_receive(:call).and_return([200, app_headers, app_body])
 
@@ -39,7 +39,7 @@ describe Goliath::Rack::Auth::Krb::BasicAndNego do
       r = [401, {}, "foo"]
       l.should_receive(:response).twice.and_return(r)
       l.should_receive(:process_request)
-      ::BasicAndNego::Logic.should_receive(:new).and_return(l)
+      ::BasicAndNego::Processor.should_receive(:new).and_return(l)
 
       response = @auth.call(@env)
       response.should =~ r
