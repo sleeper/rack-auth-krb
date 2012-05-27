@@ -1,3 +1,4 @@
+require 'goliath'
 require 'basic_and_nego/request'
 require 'basic_and_nego/processor'
 
