@@ -7,7 +7,7 @@ module BasicAndNego
       end
 
       def unauthorized
-        return [ 401,
+        [ 401,
           { 'Content-Type' => 'text/plain',
             'Content-Length' => '0',
             'WWW-Authenticate' => challenge },
@@ -16,7 +16,7 @@ module BasicAndNego
       end
 
       def bad_request
-        return [ 400,
+        [ 400,
           { 'Content-Type' => 'text/plain',
             'Content-Length' => '0' },
             []
@@ -24,7 +24,7 @@ module BasicAndNego
       end
 
       def error
-        return [ 500,
+        [ 500,
           { 'Content-Type' => 'text/plain',
             'Content-Length' => '0' },
             []

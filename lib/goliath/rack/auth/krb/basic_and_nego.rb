@@ -9,8 +9,6 @@ module Goliath
         class BasicAndNego
           include Goliath::Rack::AsyncMiddleware
 
-          attr_reader :realm, :keytab, :service
-
           def initialize(app, realm, keytab, service=nil)
             @app = app
             @realm = realm
@@ -19,7 +17,7 @@ module Goliath
           end
 
           def call(env)
-            a = ::BasicAndNego::Processor.new(env, env.logger, realm, keytab, service)
+            a = ::BasicAndNego::Processor.new(env, env.logger, @realm, @keytab, @service)
             a.process_request
 
             return a.response if a.response

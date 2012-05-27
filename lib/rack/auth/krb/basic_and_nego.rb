@@ -5,7 +5,6 @@ module Rack
   module Auth
     module Krb
       class BasicAndNego
-        attr_reader :realm, :keytab, :service
 
         def initialize(app, realm, keytab, service=nil)
           @app = app
@@ -15,7 +14,7 @@ module Rack
         end
 
         def call(env)
-          a = ::BasicAndNego::Processor.new(env, env['rack.logger'], realm, keytab, service)
+          a = ::BasicAndNego::Processor.new(env, env['rack.logger'], @realm, @keytab, @service)
           a.process_request
 
           return a.response if a.response
