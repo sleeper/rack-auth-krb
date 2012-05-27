@@ -1,13 +1,13 @@
 require 'spec_helper'
-require 'basic_and_nego/logic'
+require 'basic_and_nego/processor'
 require 'basic_and_nego/nulllogger'
 
-describe BasicAndNego::Logic do
+describe BasicAndNego::Processor do
   it "should not re-authenticate user" do
     env = {}
     env['rack.session'] = {}
     env['rack.session']['REMOTE_USER'] = 'fred'
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.process_request
     a.response.should be_nil
     a.headers.should be_empty
@@ -15,14 +15,14 @@ describe BasicAndNego::Logic do
 
   it "should try to authenticate if there's no session" do
     env = {}
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.should_receive(:authenticate)
     a.process_request
   end
 
   it "should set REMOTE_USER if user authenticated" do
     env = {}
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.should_receive(:authenticate).and_return(true)
     a.should_receive(:client_name).and_return("fred")
     a.process_request
@@ -32,7 +32,7 @@ describe BasicAndNego::Logic do
   it "should update the session if user authenticated" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.should_receive(:authenticate).and_return(true)
     a.should_receive(:client_name).twice.and_return("fred")
     a.process_request
@@ -43,7 +43,7 @@ describe BasicAndNego::Logic do
   it "should try to authenticate if user is not yet authenticated" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.should_receive(:authenticate)
     a.process_request
   end
@@ -51,7 +51,7 @@ describe BasicAndNego::Logic do
   it "should ask for an authorization key if none is provided" do
     env = {}
     env['rack.session'] = {}
-    a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+    a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
     a.authenticate
     a.response.should_not be_nil
     a.response[0].should == 401
@@ -61,18 +61,18 @@ describe BasicAndNego::Logic do
     before(:each) do 
       env = {'HTTP_AUTHORIZATION' => "Negotiate VGhpcyBpcyBteSB0b2tlbg=="}
       env['rack.session'] = {}
-      @a = BasicAndNego::Logic.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
+      @a = BasicAndNego::Processor.new(env, BasicAndNego::NullLogger.new, 'my realm', 'my keytab file')
       @gss = double('gss').as_null_object
     end
 
     it "should try authentication against GSS in case of Negotiate" do
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return("Granted")
       @a.authenticate
     end
 
     it "should return 'unauthorized' if authentication fails" do 
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return(nil)
       @a.authenticate.should be_false
       @a.response.should_not be_nil
@@ -80,14 +80,14 @@ describe BasicAndNego::Logic do
     end
 
     it "should return true if authentication worked" do
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return("Granted")
       @a.authenticate.should be_true
       @a.response.should be_nil
     end
 
     it "should set client's name if authentication worked" do
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return("Granted")
       @gss.should_receive(:display_name).and_return("fred")
       @a.authenticate.should be_true
@@ -95,7 +95,7 @@ describe BasicAndNego::Logic do
     end
 
     it "should set header to returned token if authentication worked" do
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_return("Granted")
       @gss.should_receive(:display_name).and_return("fred")
       @a.authenticate.should be_true
@@ -104,14 +104,14 @@ describe BasicAndNego::Logic do
     end
 
     it "should catch GSSAPI exceptions in getting credentials" do
-      BasicAndNego::GSS.should_receive(:new).and_raise(GSSAPI::GssApiError)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_raise(GSSAPI::GssApiError)
       @a.authenticate.should be_false
       @a.response.should_not be_nil
       @a.response[0].should == 500
     end
 
     it "should catch GSSAPI exceptions in authenticating token" do
-      BasicAndNego::GSS.should_receive(:new).and_return(@gss)
+      BasicAndNego::Auth::GSS.should_receive(:new).and_return(@gss)
       @gss.should_receive(:authenticate).and_raise(GSSAPI::GssApiError)
       @a.authenticate.should be_false
       @a.response.should_not be_nil
@@ -126,9 +126,9 @@ describe BasicAndNego::Logic do
       @realm = "my realm"
       @keytab = "my keytab"
       @logger = BasicAndNego::NullLogger.new
-      @a = BasicAndNego::Logic.new(env, @logger, @realm, @keytab)
+      @a = BasicAndNego::Processor.new(env, @logger, @realm, @keytab)
       @krb = double('kerberos').as_null_object
-      BasicAndNego::Krb.should_receive(:new).with(@logger, @realm, @keytab).and_return(@krb)
+      BasicAndNego::Auth::Krb.should_receive(:new).with(@logger, @realm, @keytab).and_return(@krb)
     end
 
     it "should try authentication against Kerberos in case of Basic" do

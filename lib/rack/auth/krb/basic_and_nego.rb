@@ -1,7 +1,5 @@
 require 'basic_and_nego/request'
-require 'basic_and_nego/logic'
-require 'basic_and_nego/nulllogger'
-require 'socket'
+require 'basic_and_nego/processor'
 
 module Rack
   module Auth
@@ -17,7 +15,7 @@ module Rack
         end
 
         def call(env)
-          a = ::BasicAndNego::Logic.new(env, env['rack.logger'], realm, keytab, service)
+          a = ::BasicAndNego::Processor.new(env, env['rack.logger'], realm, keytab, service)
           a.process_request
 
           return a.response if a.response

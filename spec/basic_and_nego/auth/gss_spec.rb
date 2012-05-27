@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'basic_and_nego/gss'
+require 'basic_and_nego/auth/gss'
 
-describe BasicAndNego::GSS do
+describe BasicAndNego::Auth::GSS do
   let(:realm) { "my realm"}
   let(:service) { "foo" }
   let(:keytab) { "my keytab" }

@@ -1,6 +1,5 @@
-require 'goliath'
 require 'basic_and_nego/request'
-require 'basic_and_nego/logic'
+require 'basic_and_nego/processor'
 
 module Goliath
   module Rack
@@ -19,7 +18,7 @@ module Goliath
           end
 
           def call(env)
-            a = ::BasicAndNego::Logic.new(env, env.logger, realm, keytab, service)
+            a = ::BasicAndNego::Processor.new(env, env.logger, realm, keytab, service)
             a.process_request
 
             return a.response if a.response

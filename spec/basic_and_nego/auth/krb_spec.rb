@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'basic_and_nego/krb'
+require 'basic_and_nego/auth/krb'
 
-describe BasicAndNego::Krb do
+describe BasicAndNego::Auth::Krb do
   let(:logger) { double('logger').as_null_object }
   let(:realm) {"my realm"}
   let(:keytab) {"my keytab"}
