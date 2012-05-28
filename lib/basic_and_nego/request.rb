@@ -3,12 +3,14 @@ module BasicAndNego
   class Request < Rack::Auth::AbstractRequest
     attr_reader :credentials
 
-    def basic?
-      :basic == scheme
-    end
-
-    def negotiate?
-      :negotiate == scheme
+    def authenticator
+      if !provided?
+        BasicAndNego::Auth::None
+      elsif supported_auth?
+        BasicAndNego::Auth.const_get(scheme.to_s.capitalize)
+      else
+        BasicAndNego::Auth::Unsupported
+      end
     end
 
     def credentials
@@ -18,5 +20,11 @@ module BasicAndNego
     def username
       credentials.first
     end 
+
+    private
+
+    def supported_auth?
+      [:basic, :negotiate].include? scheme
+    end
   end
 end

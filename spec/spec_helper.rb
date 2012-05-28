@@ -10,12 +10,10 @@ def env_with_params(path = "/", params = {}, env = {})
   Rack::MockRequest.env_for("#{path}?#{Rack::Utils.build_query(params)}", env)
 end
 
-
 def setup_rack(app = nil, opts={}, &block)
   app ||= block if block_given?
 
   Rack::Builder.new do
-    use Rack::Logger
     use opts[:session] if opts[:session]
     use Rack::Auth::Krb::BasicAndNego, 'my realm', 'my keytab'
     run app
@@ -26,7 +24,7 @@ def not_authorized_response
   [ 401,
     { 'Content-Type' => 'text/plain',
       'Content-Length' => '0',
-      'WWW-Authenticate' => "Negotiate"},
+      'WWW-Authenticate' => ["Negotiate", "Basic"]},
       []
   ]
 end

@@ -1,12 +1,6 @@
 require 'spec_helper'
 require 'rack/auth/krb/basic_and_nego'
-require 'logger'
-
-class DummyApp
-  def call(env)
-    [200, {}, "Hello World"]
-  end
-end
+require 'basic_and_nego/nulllogger'
 
 class SessionAuthentified
   attr_accessor :app
@@ -22,19 +16,18 @@ class SessionAuthentified
 end # session
 
 describe "Rack::Auth::Krb::BasicAndNego" do
-  OPTIONS = ['NCE.AMADEUS.NET', '/etc/krb5.keytab']
 
   before(:each) do
     @basic_app = lambda{|env| [200,{'Content-Type' => 'text/plain'},'OK']}
-    @env = env_with_params("/")
+    @env = env_with_params("/", {}, {'rack.logger' => BasicAndNego::NullLogger.new})
   end
 
   it "should return a 401 if authentication failed" do
     app = setup_rack(@basic_app)
-    auth = mock("krb auth").as_null_object
-    auth.should_receive(:response).twice.and_return(not_authorized_response)
-    auth.should_receive(:process_request)
-    BasicAndNego::Logic.should_receive(:new).and_return(auth)
+    p = double("processor").as_null_object
+    p.should_receive(:response).twice.and_return(not_authorized_response)
+    p.should_receive(:process_request)
+    ::BasicAndNego::Processor.should_receive(:new).and_return(p)
 
     app.call(@env).first.should == 401
   end
