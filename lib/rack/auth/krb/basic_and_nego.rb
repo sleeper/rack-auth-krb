@@ -14,7 +14,11 @@ module Rack
         end
 
         def call(env)
-          a = ::BasicAndNego::Processor.new(env, env['rack.logger'], @realm, @keytab, @service)
+          # Either user rack.logger if defined or create on
+          # logger defaulting to rack.errors
+          #
+          logger = env['rack.logger'] || ::Logger.new(env['rack.errors'])
+          a = ::BasicAndNego::Processor.new(env, logger, @realm, @keytab, @service)
           a.process_request
 
           return a.response if a.response

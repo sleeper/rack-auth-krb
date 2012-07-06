@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    rack-auth-krb (0.0.2)
+    rack-auth-krb (0.0.8)
       gssapi
+      rack
       rkerberos
 
 GEM
