@@ -35,7 +35,7 @@ module Rack
           status, headers, body = @app.call(env)
 
           if a
-          headers.merge!(a.headers)
+            headers.merge!(a.headers)
           end
 
           [status, headers, body]
