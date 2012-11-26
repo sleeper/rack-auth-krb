@@ -8,21 +8,32 @@ module Goliath
       module Krb
         class BasicAndNego
           include Goliath::Rack::AsyncMiddleware
-
-          def initialize(app, realm, keytab, service=nil)
+          
+          # Initialize BasicAndNego configuration
+          # @param realm [String] Kerberos realm
+          # @param keytab [String] Kerberos keytab
+          # @param service [String] Kerberos service (may be nil)
+          # @param paths_only [String] Allows to request an authentication process only for specified paths
+          def initialize(app, realm, keytab, service=nil, paths_only=[])
             @app = app
             @realm = realm
             @keytab = keytab
             @service = service
+            @paths_only = paths_only
           end
 
           def call(env)
-            a = ::BasicAndNego::Processor.new(env, env.logger, @realm, @keytab, @service)
-            a.process_request
+            a = nil
 
-            return a.response if a.response
+            if @paths_only.empty? or @paths_only.include?(env["PATH_INFO"])
+              a = ::BasicAndNego::Processor.new(env, env.logger, @realm, @keytab, @service)
+              a.process_request
+              return a.response if a.response
+            end
+            
+            new_headers = (a.nil?) ? {} : a.headers
 
-            super(env, a.headers)
+            super(env, new_headers)
           end
 
           def post_process(env, status, headers, body, additional_headers)
