@@ -1,7 +1,6 @@
 require 'goliath'
 require 'basic_and_nego/request'
 require 'basic_and_nego/processor'
-require 'ruby-debug'
 
 module Goliath
   module Rack
