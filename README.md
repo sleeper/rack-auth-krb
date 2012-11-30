@@ -55,3 +55,16 @@ class DumpHeaders < Goliath::API
 end
 ```
 
+Enable authentication only for a subset of paths
+============
+You can specify a list of paths for the ones you only want the authentication process to be enabled. 
+
+```ruby
+use Rack::Auth::Krb::BasicAndNego, 'my realm', 'my keytab', "http@hostname", ["/", "/oauth/authorize"]
+```
+
+or 
+
+```ruby
+use Goliath::Rack::Auth::Krb::BasicAndNego, 'my realm', 'my keytab', "http@hostname", ["/", "/oauth/authorize"]
+```
