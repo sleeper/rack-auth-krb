@@ -2,7 +2,7 @@ require 'rubygems'
 
 Gem::Specification.new do |gem|
   gem.name      = 'rack-auth-krb'
-  gem.version   = '0.2.0'
+  gem.version   = '0.2.1'
   gem.authors   = ["Frederick Ros"]
   gem.email     = 'frederick.ros@gmail.com'
   gem.homepage  = 'https://github.com/sleeper/rack-auth-krb'
