@@ -24,7 +24,7 @@ module BasicAndNego
     private
 
     def supported_auth?
-      [:basic, :negotiate].include? scheme
+      %w(basic negotiate).include? scheme.to_s
     end
   end
 end
