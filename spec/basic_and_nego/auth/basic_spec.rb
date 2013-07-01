@@ -49,7 +49,6 @@ describe BasicAndNego::Auth::Basic do
     @a.process
     @a.client_name.should == "fred"
   end  
-
  
 end
 
