@@ -15,6 +15,15 @@ module BasicAndNego
         ]
       end
 
+      def unauthorized_no_negotiate
+        [ 401,
+          { 'Content-Type' => 'text/plain',
+            'Content-Length' => '0',
+            'WWW-Authenticate' => "Basic" },
+            []
+        ]
+      end
+
       def bad_request
         [ 400,
           { 'Content-Type' => 'text/plain',

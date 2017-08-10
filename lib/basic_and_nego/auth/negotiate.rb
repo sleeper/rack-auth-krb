@@ -32,13 +32,13 @@ module BasicAndNego
         @out_tok = @gss.authenticate(token)
       rescue GSSAPI::GssApiError => e
         @logger.error "Unable to authenticate: #{e.message}"
-        @response = unauthorized
+        @response = unauthorized_no_negotiate
       end
 
       def verify_token
         if !@out_tok
           @logger.debug "Unable to authenticate (401)"
-          @response = unauthorized
+          @response = unauthorized_no_negotiate
         end
       end
 
