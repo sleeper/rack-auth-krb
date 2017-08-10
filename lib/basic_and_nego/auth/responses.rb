@@ -10,7 +10,7 @@ module BasicAndNego
         [ 401,
           { 'Content-Type' => 'text/plain',
             'Content-Length' => '0',
-            'WWW-Authenticate' => challenge },
+            'WWW-Authenticate' => challenge.join("\n") },
             []
         ]
       end
